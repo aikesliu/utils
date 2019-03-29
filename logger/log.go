@@ -176,7 +176,8 @@ func console(depth int, s string) {
 		if filePrefix != "" {
 			file = strings.Replace(file, filePrefix, ".", 1)
 		}
-		fmt.Printf("%s %s:%d \n", s, file, line)
+		t := time.Now()
+		fmt.Printf("[%s|%d]%s %s:%d\n", t.Format("2006-01-02 15:04:05"), t.Unix(), s, file, line)
 	}
 }
 
