@@ -9,6 +9,7 @@ import (
 	"os"
 	"runtime"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 )
@@ -57,6 +58,7 @@ var (
 	dailyRolling    = true
 	consoleAppender = true
 	rollingFile     = false
+	filePrefix      = ""
 	logObj          *_FILE
 	callDepth       = 3
 	logFlag         = log.Ldate | log.Ltime | log.Llongfile
@@ -98,9 +100,13 @@ func SetLogFlag(flag int) {
 	}
 }
 
-// func SetConsole(isConsole bool) {
-// 	consoleAppender = isConsole
-// }
+func SetConsole(isConsole bool) {
+	consoleAppender = isConsole
+}
+
+func SetFilePrefix(path string) {
+	filePrefix = path
+}
 
 func SetLevel(_level LEVEL) {
 	logLevel = _level
@@ -164,20 +170,15 @@ func mkdirlog(dir string) (e error) {
 	return
 }
 
-// func console(depth int, s ...interface{}) {
-// 	if consoleAppender {
-// 		_, file, line, _ := runtime.Caller(depth)
-// 		// short := file
-// 		// for i := len(file) - 1; i > 0; i-- {
-// 		// 	if file[i] == '/' {
-// 		// 		short = file[i+1:]
-// 		// 		break
-// 		// 	}
-// 		// }
-// 		// file = short
-// 		log.Println(file, strconv.Itoa(line), s)
-// 	}
-// }
+func console(depth int, s string) {
+	if consoleAppender {
+		_, file, line, _ := runtime.Caller(depth)
+		if filePrefix != "" {
+			file = strings.Replace(file, filePrefix, ".", 1)
+		}
+		fmt.Printf("%s %s:%d \n", s, file, line)
+	}
+}
 
 func catchError() {
 	if err := recover(); err != nil {
@@ -201,7 +202,7 @@ func Debug(lvl LEVEL, fmtStr string, a ...interface{}) {
 		if logObj != nil {
 			logObj.lg.Output(callDepth, logStr)
 		}
-		// console(callDepth, logStr)
+		console(callDepth, logStr)
 		if lvl == FATAL {
 			os.Exit(1)
 		}
