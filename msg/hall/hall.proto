@@ -1,0 +1,12 @@
+syntax = "proto2";
+
+package hall;
+
+enum Msg {
+    login = 1;
+}
+
+message LoginReq {
+    optional uint64 uid=1;
+    optional string token=2;
+}
