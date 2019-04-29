@@ -1,0 +1,136 @@
+syntax = "proto2";
+
+package gate;
+
+enum GateMsgType {
+    gs = 1;
+    us = 2;
+}
+
+enum Msg {
+    // 注册服务
+    registerServerReq = 1;
+    registerServerResp = 2;
+    g2s = 3;
+    s2g = 4;
+    s2u = 5;
+    u2s = 6;
+//    toServerClient = 4;
+//    toUserClient = 5;
+//    // 透传协议
+//    transportToServer = 3;
+//    transportToClient = 4;
+//    transportToUserClient = 5;
+    // transportToUserClient = 6;
+}
+
+//enum GateMsg {
+//    offline = 1;
+//}
+
+//enum TransportType {
+//    server=1;
+//    client=2;
+//}
+
+enum ErrorCode {
+    success = 0;
+    failed = 1;
+}
+
+//message BackendMsgHeader {
+//    optional uint32 cmd=1;
+//}
+//
+//message BackendMsg {
+//    optional BackendMsgHeader header=1;
+//    optional bytes data=2;
+//}
+//
+//message NetMsg {
+//    optional uint32 msg_type=1;
+//    optional uint32 msg_id=2;
+//    optional bytes data=3;
+//}
+//
+message RespTips {
+    optional ErrorCode code=1;
+    optional string msg=2;
+}
+
+enum ServerType {
+    service = 0;
+    game = 1;
+}
+
+message RegisterServerReq {
+    optional ServerType server_type=1;
+    optional uint32 msg_type=2;
+    optional uint32 server_id=3;
+}
+
+message RegisterServerResp {
+    optional ServerType server_type=1;
+    optional uint32 msg_type=2;
+    optional uint32 server_id=3;
+    optional int64 server_time=4;
+    optional RespTips ret=5;
+}
+
+message GateMsg {
+    optional GateMsgType gmt=1;
+    optional uint32 msg_type=2;
+    optional uint32 msg_id=3;
+    optional bytes data=4;
+}
+
+message ServerMsg {
+    optional uint32 from_msg_type=1;
+    optional uint32 to_msg_type=2;
+    optional bytes data=3;
+}
+
+message GSMsg {
+    optional GateMsgType gmt=1;
+    optional uint32 from_msg_type=2;
+    optional uint32 to_msg_type=3;
+    optional uint32 msg_id=4;
+    optional bytes data=5;
+}
+
+message S2GUserMsg {
+    repeated uint64 conn_ids=1;
+    optional bytes data=2;
+}
+
+message GUMsg {
+    optional uint32 msg_type=1;
+    optional uint32 msg_id=2;
+    optional bytes data=3;
+}
+
+//
+//message BackendTransportMsg {
+//    repeated uint32 conn_ids=1;
+//    optional TransportType transport_type=2;
+//    optional bytes data=3;
+//}
+//
+//message ServerToServerMsg {
+//    optional uint32 msg_type=1;
+//    optional NetMsg msg=2;
+//}
+//
+//message GateToServerMsg {
+//    optional uint64 conn_id=1;
+//    optional NetMsg msg=2;
+//}
+//
+//message ServerToClientMsg {
+//    optional uint64 conn_id = 1;
+//    optional NetMsg msg=2;
+//}
+//
+//message ConnDisconnectMsg {
+//    optional uint64 conn_id = 1;
+//}
