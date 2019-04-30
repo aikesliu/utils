@@ -66,28 +66,25 @@ const (
 	// 注册服务
 	Msg_registerServerReq  Msg = 1
 	Msg_registerServerResp Msg = 2
-	Msg_g2s                Msg = 3
-	Msg_s2g                Msg = 4
-	Msg_s2u                Msg = 5
-	Msg_u2s                Msg = 6
+	Msg_ping               Msg = 3
+	Msg_pong               Msg = 4
+	Msg_userLostConnection Msg = 5
 )
 
 var Msg_name = map[int32]string{
 	1: "registerServerReq",
 	2: "registerServerResp",
-	3: "g2s",
-	4: "s2g",
-	5: "s2u",
-	6: "u2s",
+	3: "ping",
+	4: "pong",
+	5: "userLostConnection",
 }
 
 var Msg_value = map[string]int32{
 	"registerServerReq":  1,
 	"registerServerResp": 2,
-	"g2s":                3,
-	"s2g":                4,
-	"s2u":                5,
-	"u2s":                6,
+	"ping":               3,
+	"pong":               4,
+	"userLostConnection": 5,
 }
 
 func (x Msg) Enum() *Msg {
@@ -193,21 +190,77 @@ func (ServerType) EnumDescriptor() ([]byte, []int) {
 	return fileDescriptor_743bb58a714d8b7d, []int{3}
 }
 
-//message BackendMsgHeader {
-//    optional uint32 cmd=1;
-//}
-//
-//message BackendMsg {
-//    optional BackendMsgHeader header=1;
-//    optional bytes data=2;
-//}
-//
-//message NetMsg {
-//    optional uint32 msg_type=1;
-//    optional uint32 msg_id=2;
-//    optional bytes data=3;
-//}
-//
+type GateMsg struct {
+	Gmt                  *GateMsgType `protobuf:"varint,1,opt,name=gmt,enum=gate.GateMsgType" json:"gmt,omitempty"`
+	ConnId               *uint64      `protobuf:"varint,2,opt,name=conn_id,json=connId" json:"conn_id,omitempty"`
+	MsgType              *uint32      `protobuf:"varint,3,opt,name=msg_type,json=msgType" json:"msg_type,omitempty"`
+	MsgId                *uint32      `protobuf:"varint,4,opt,name=msg_id,json=msgId" json:"msg_id,omitempty"`
+	Data                 []byte       `protobuf:"bytes,5,opt,name=data" json:"data,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}     `json:"-"`
+	XXX_unrecognized     []byte       `json:"-"`
+	XXX_sizecache        int32        `json:"-"`
+}
+
+func (m *GateMsg) Reset()         { *m = GateMsg{} }
+func (m *GateMsg) String() string { return proto.CompactTextString(m) }
+func (*GateMsg) ProtoMessage()    {}
+func (*GateMsg) Descriptor() ([]byte, []int) {
+	return fileDescriptor_743bb58a714d8b7d, []int{0}
+}
+
+func (m *GateMsg) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GateMsg.Unmarshal(m, b)
+}
+func (m *GateMsg) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GateMsg.Marshal(b, m, deterministic)
+}
+func (m *GateMsg) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GateMsg.Merge(m, src)
+}
+func (m *GateMsg) XXX_Size() int {
+	return xxx_messageInfo_GateMsg.Size(m)
+}
+func (m *GateMsg) XXX_DiscardUnknown() {
+	xxx_messageInfo_GateMsg.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GateMsg proto.InternalMessageInfo
+
+func (m *GateMsg) GetGmt() GateMsgType {
+	if m != nil && m.Gmt != nil {
+		return *m.Gmt
+	}
+	return GateMsgType_gs
+}
+
+func (m *GateMsg) GetConnId() uint64 {
+	if m != nil && m.ConnId != nil {
+		return *m.ConnId
+	}
+	return 0
+}
+
+func (m *GateMsg) GetMsgType() uint32 {
+	if m != nil && m.MsgType != nil {
+		return *m.MsgType
+	}
+	return 0
+}
+
+func (m *GateMsg) GetMsgId() uint32 {
+	if m != nil && m.MsgId != nil {
+		return *m.MsgId
+	}
+	return 0
+}
+
+func (m *GateMsg) GetData() []byte {
+	if m != nil {
+		return m.Data
+	}
+	return nil
+}
+
 type RespTips struct {
 	Code                 *ErrorCode `protobuf:"varint,1,opt,name=code,enum=gate.ErrorCode" json:"code,omitempty"`
 	Msg                  *string    `protobuf:"bytes,2,opt,name=msg" json:"msg,omitempty"`
@@ -220,7 +273,7 @@ func (m *RespTips) Reset()         { *m = RespTips{} }
 func (m *RespTips) String() string { return proto.CompactTextString(m) }
 func (*RespTips) ProtoMessage()    {}
 func (*RespTips) Descriptor() ([]byte, []int) {
-	return fileDescriptor_743bb58a714d8b7d, []int{0}
+	return fileDescriptor_743bb58a714d8b7d, []int{1}
 }
 
 func (m *RespTips) XXX_Unmarshal(b []byte) error {
@@ -268,7 +321,7 @@ func (m *RegisterServerReq) Reset()         { *m = RegisterServerReq{} }
 func (m *RegisterServerReq) String() string { return proto.CompactTextString(m) }
 func (*RegisterServerReq) ProtoMessage()    {}
 func (*RegisterServerReq) Descriptor() ([]byte, []int) {
-	return fileDescriptor_743bb58a714d8b7d, []int{1}
+	return fileDescriptor_743bb58a714d8b7d, []int{2}
 }
 
 func (m *RegisterServerReq) XXX_Unmarshal(b []byte) error {
@@ -325,7 +378,7 @@ func (m *RegisterServerResp) Reset()         { *m = RegisterServerResp{} }
 func (m *RegisterServerResp) String() string { return proto.CompactTextString(m) }
 func (*RegisterServerResp) ProtoMessage()    {}
 func (*RegisterServerResp) Descriptor() ([]byte, []int) {
-	return fileDescriptor_743bb58a714d8b7d, []int{2}
+	return fileDescriptor_743bb58a714d8b7d, []int{3}
 }
 
 func (m *RegisterServerResp) XXX_Unmarshal(b []byte) error {
@@ -381,138 +434,90 @@ func (m *RegisterServerResp) GetRet() *RespTips {
 	return nil
 }
 
-type SGMsg struct {
-	Gmt                  *GateMsgType `protobuf:"varint,1,opt,name=gmt,enum=gate.GateMsgType" json:"gmt,omitempty"`
-	MsgType              *uint32      `protobuf:"varint,2,opt,name=msg_type,json=msgType" json:"msg_type,omitempty"`
-	MsgId                *uint32      `protobuf:"varint,3,opt,name=msg_id,json=msgId" json:"msg_id,omitempty"`
-	Data                 []byte       `protobuf:"bytes,4,opt,name=data" json:"data,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}     `json:"-"`
-	XXX_unrecognized     []byte       `json:"-"`
-	XXX_sizecache        int32        `json:"-"`
+type Ping struct {
+	S                    *int64   `protobuf:"varint,1,opt,name=s" json:"s,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *SGMsg) Reset()         { *m = SGMsg{} }
-func (m *SGMsg) String() string { return proto.CompactTextString(m) }
-func (*SGMsg) ProtoMessage()    {}
-func (*SGMsg) Descriptor() ([]byte, []int) {
-	return fileDescriptor_743bb58a714d8b7d, []int{3}
-}
-
-func (m *SGMsg) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_SGMsg.Unmarshal(m, b)
-}
-func (m *SGMsg) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_SGMsg.Marshal(b, m, deterministic)
-}
-func (m *SGMsg) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_SGMsg.Merge(m, src)
-}
-func (m *SGMsg) XXX_Size() int {
-	return xxx_messageInfo_SGMsg.Size(m)
-}
-func (m *SGMsg) XXX_DiscardUnknown() {
-	xxx_messageInfo_SGMsg.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_SGMsg proto.InternalMessageInfo
-
-func (m *SGMsg) GetGmt() GateMsgType {
-	if m != nil && m.Gmt != nil {
-		return *m.Gmt
-	}
-	return GateMsgType_gs
-}
-
-func (m *SGMsg) GetMsgType() uint32 {
-	if m != nil && m.MsgType != nil {
-		return *m.MsgType
-	}
-	return 0
-}
-
-func (m *SGMsg) GetMsgId() uint32 {
-	if m != nil && m.MsgId != nil {
-		return *m.MsgId
-	}
-	return 0
-}
-
-func (m *SGMsg) GetData() []byte {
-	if m != nil {
-		return m.Data
-	}
-	return nil
-}
-
-type GSMsg struct {
-	Gmt                  *GateMsgType `protobuf:"varint,1,opt,name=gmt,enum=gate.GateMsgType" json:"gmt,omitempty"`
-	FromMsgType          *uint32      `protobuf:"varint,2,opt,name=from_msg_type,json=fromMsgType" json:"from_msg_type,omitempty"`
-	ToMsgType            *uint32      `protobuf:"varint,3,opt,name=to_msg_type,json=toMsgType" json:"to_msg_type,omitempty"`
-	MsgId                *uint32      `protobuf:"varint,4,opt,name=msg_id,json=msgId" json:"msg_id,omitempty"`
-	Data                 []byte       `protobuf:"bytes,5,opt,name=data" json:"data,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}     `json:"-"`
-	XXX_unrecognized     []byte       `json:"-"`
-	XXX_sizecache        int32        `json:"-"`
-}
-
-func (m *GSMsg) Reset()         { *m = GSMsg{} }
-func (m *GSMsg) String() string { return proto.CompactTextString(m) }
-func (*GSMsg) ProtoMessage()    {}
-func (*GSMsg) Descriptor() ([]byte, []int) {
+func (m *Ping) Reset()         { *m = Ping{} }
+func (m *Ping) String() string { return proto.CompactTextString(m) }
+func (*Ping) ProtoMessage()    {}
+func (*Ping) Descriptor() ([]byte, []int) {
 	return fileDescriptor_743bb58a714d8b7d, []int{4}
 }
 
-func (m *GSMsg) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_GSMsg.Unmarshal(m, b)
+func (m *Ping) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Ping.Unmarshal(m, b)
 }
-func (m *GSMsg) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_GSMsg.Marshal(b, m, deterministic)
+func (m *Ping) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Ping.Marshal(b, m, deterministic)
 }
-func (m *GSMsg) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_GSMsg.Merge(m, src)
+func (m *Ping) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Ping.Merge(m, src)
 }
-func (m *GSMsg) XXX_Size() int {
-	return xxx_messageInfo_GSMsg.Size(m)
+func (m *Ping) XXX_Size() int {
+	return xxx_messageInfo_Ping.Size(m)
 }
-func (m *GSMsg) XXX_DiscardUnknown() {
-	xxx_messageInfo_GSMsg.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_GSMsg proto.InternalMessageInfo
-
-func (m *GSMsg) GetGmt() GateMsgType {
-	if m != nil && m.Gmt != nil {
-		return *m.Gmt
-	}
-	return GateMsgType_gs
+func (m *Ping) XXX_DiscardUnknown() {
+	xxx_messageInfo_Ping.DiscardUnknown(m)
 }
 
-func (m *GSMsg) GetFromMsgType() uint32 {
-	if m != nil && m.FromMsgType != nil {
-		return *m.FromMsgType
+var xxx_messageInfo_Ping proto.InternalMessageInfo
+
+func (m *Ping) GetS() int64 {
+	if m != nil && m.S != nil {
+		return *m.S
 	}
 	return 0
 }
 
-func (m *GSMsg) GetToMsgType() uint32 {
-	if m != nil && m.ToMsgType != nil {
-		return *m.ToMsgType
+type Pong struct {
+	S                    *int64   `protobuf:"varint,1,opt,name=s" json:"s,omitempty"`
+	E                    *int64   `protobuf:"varint,2,opt,name=e" json:"e,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *Pong) Reset()         { *m = Pong{} }
+func (m *Pong) String() string { return proto.CompactTextString(m) }
+func (*Pong) ProtoMessage()    {}
+func (*Pong) Descriptor() ([]byte, []int) {
+	return fileDescriptor_743bb58a714d8b7d, []int{5}
+}
+
+func (m *Pong) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Pong.Unmarshal(m, b)
+}
+func (m *Pong) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Pong.Marshal(b, m, deterministic)
+}
+func (m *Pong) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Pong.Merge(m, src)
+}
+func (m *Pong) XXX_Size() int {
+	return xxx_messageInfo_Pong.Size(m)
+}
+func (m *Pong) XXX_DiscardUnknown() {
+	xxx_messageInfo_Pong.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Pong proto.InternalMessageInfo
+
+func (m *Pong) GetS() int64 {
+	if m != nil && m.S != nil {
+		return *m.S
 	}
 	return 0
 }
 
-func (m *GSMsg) GetMsgId() uint32 {
-	if m != nil && m.MsgId != nil {
-		return *m.MsgId
+func (m *Pong) GetE() int64 {
+	if m != nil && m.E != nil {
+		return *m.E
 	}
 	return 0
-}
-
-func (m *GSMsg) GetData() []byte {
-	if m != nil {
-		return m.Data
-	}
-	return nil
 }
 
 type S2GUserMsg struct {
@@ -527,7 +532,7 @@ func (m *S2GUserMsg) Reset()         { *m = S2GUserMsg{} }
 func (m *S2GUserMsg) String() string { return proto.CompactTextString(m) }
 func (*S2GUserMsg) ProtoMessage()    {}
 func (*S2GUserMsg) Descriptor() ([]byte, []int) {
-	return fileDescriptor_743bb58a714d8b7d, []int{5}
+	return fileDescriptor_743bb58a714d8b7d, []int{6}
 }
 
 func (m *S2GUserMsg) XXX_Unmarshal(b []byte) error {
@@ -562,7 +567,46 @@ func (m *S2GUserMsg) GetData() []byte {
 	return nil
 }
 
-type GUMsg struct {
+type UserLostConnectionMsg struct {
+	ConnId               *uint64  `protobuf:"varint,1,opt,name=conn_id,json=connId" json:"conn_id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *UserLostConnectionMsg) Reset()         { *m = UserLostConnectionMsg{} }
+func (m *UserLostConnectionMsg) String() string { return proto.CompactTextString(m) }
+func (*UserLostConnectionMsg) ProtoMessage()    {}
+func (*UserLostConnectionMsg) Descriptor() ([]byte, []int) {
+	return fileDescriptor_743bb58a714d8b7d, []int{7}
+}
+
+func (m *UserLostConnectionMsg) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_UserLostConnectionMsg.Unmarshal(m, b)
+}
+func (m *UserLostConnectionMsg) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_UserLostConnectionMsg.Marshal(b, m, deterministic)
+}
+func (m *UserLostConnectionMsg) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_UserLostConnectionMsg.Merge(m, src)
+}
+func (m *UserLostConnectionMsg) XXX_Size() int {
+	return xxx_messageInfo_UserLostConnectionMsg.Size(m)
+}
+func (m *UserLostConnectionMsg) XXX_DiscardUnknown() {
+	xxx_messageInfo_UserLostConnectionMsg.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_UserLostConnectionMsg proto.InternalMessageInfo
+
+func (m *UserLostConnectionMsg) GetConnId() uint64 {
+	if m != nil && m.ConnId != nil {
+		return *m.ConnId
+	}
+	return 0
+}
+
+type UserMsg struct {
 	MsgType              *uint32  `protobuf:"varint,1,opt,name=msg_type,json=msgType" json:"msg_type,omitempty"`
 	MsgId                *uint32  `protobuf:"varint,2,opt,name=msg_id,json=msgId" json:"msg_id,omitempty"`
 	Data                 []byte   `protobuf:"bytes,3,opt,name=data" json:"data,omitempty"`
@@ -571,46 +615,46 @@ type GUMsg struct {
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *GUMsg) Reset()         { *m = GUMsg{} }
-func (m *GUMsg) String() string { return proto.CompactTextString(m) }
-func (*GUMsg) ProtoMessage()    {}
-func (*GUMsg) Descriptor() ([]byte, []int) {
-	return fileDescriptor_743bb58a714d8b7d, []int{6}
+func (m *UserMsg) Reset()         { *m = UserMsg{} }
+func (m *UserMsg) String() string { return proto.CompactTextString(m) }
+func (*UserMsg) ProtoMessage()    {}
+func (*UserMsg) Descriptor() ([]byte, []int) {
+	return fileDescriptor_743bb58a714d8b7d, []int{8}
 }
 
-func (m *GUMsg) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_GUMsg.Unmarshal(m, b)
+func (m *UserMsg) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_UserMsg.Unmarshal(m, b)
 }
-func (m *GUMsg) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_GUMsg.Marshal(b, m, deterministic)
+func (m *UserMsg) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_UserMsg.Marshal(b, m, deterministic)
 }
-func (m *GUMsg) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_GUMsg.Merge(m, src)
+func (m *UserMsg) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_UserMsg.Merge(m, src)
 }
-func (m *GUMsg) XXX_Size() int {
-	return xxx_messageInfo_GUMsg.Size(m)
+func (m *UserMsg) XXX_Size() int {
+	return xxx_messageInfo_UserMsg.Size(m)
 }
-func (m *GUMsg) XXX_DiscardUnknown() {
-	xxx_messageInfo_GUMsg.DiscardUnknown(m)
+func (m *UserMsg) XXX_DiscardUnknown() {
+	xxx_messageInfo_UserMsg.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_GUMsg proto.InternalMessageInfo
+var xxx_messageInfo_UserMsg proto.InternalMessageInfo
 
-func (m *GUMsg) GetMsgType() uint32 {
+func (m *UserMsg) GetMsgType() uint32 {
 	if m != nil && m.MsgType != nil {
 		return *m.MsgType
 	}
 	return 0
 }
 
-func (m *GUMsg) GetMsgId() uint32 {
+func (m *UserMsg) GetMsgId() uint32 {
 	if m != nil && m.MsgId != nil {
 		return *m.MsgId
 	}
 	return 0
 }
 
-func (m *GUMsg) GetData() []byte {
+func (m *UserMsg) GetData() []byte {
 	if m != nil {
 		return m.Data
 	}
@@ -622,47 +666,51 @@ func init() {
 	proto.RegisterEnum("gate.Msg", Msg_name, Msg_value)
 	proto.RegisterEnum("gate.ErrorCode", ErrorCode_name, ErrorCode_value)
 	proto.RegisterEnum("gate.ServerType", ServerType_name, ServerType_value)
+	proto.RegisterType((*GateMsg)(nil), "gate.GateMsg")
 	proto.RegisterType((*RespTips)(nil), "gate.RespTips")
 	proto.RegisterType((*RegisterServerReq)(nil), "gate.RegisterServerReq")
 	proto.RegisterType((*RegisterServerResp)(nil), "gate.RegisterServerResp")
-	proto.RegisterType((*SGMsg)(nil), "gate.SGMsg")
-	proto.RegisterType((*GSMsg)(nil), "gate.GSMsg")
+	proto.RegisterType((*Ping)(nil), "gate.Ping")
+	proto.RegisterType((*Pong)(nil), "gate.Pong")
 	proto.RegisterType((*S2GUserMsg)(nil), "gate.S2GUserMsg")
-	proto.RegisterType((*GUMsg)(nil), "gate.GUMsg")
+	proto.RegisterType((*UserLostConnectionMsg)(nil), "gate.UserLostConnectionMsg")
+	proto.RegisterType((*UserMsg)(nil), "gate.UserMsg")
 }
 
 func init() { proto.RegisterFile("gate.proto", fileDescriptor_743bb58a714d8b7d) }
 
 var fileDescriptor_743bb58a714d8b7d = []byte{
-	// 478 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xbc, 0x93, 0x4f, 0x6b, 0xdb, 0x30,
-	0x18, 0xc6, 0x2b, 0xcb, 0xce, 0x9f, 0xd7, 0x6b, 0xa7, 0x0a, 0x3a, 0x5c, 0xc6, 0x36, 0xe3, 0xec,
-	0x10, 0x72, 0x28, 0xcc, 0xd7, 0x9d, 0xc6, 0x18, 0x26, 0x87, 0x5c, 0x94, 0x16, 0x76, 0x0b, 0xc6,
-	0x7e, 0x2b, 0x0c, 0x73, 0xed, 0xe9, 0x55, 0x0a, 0xbd, 0xec, 0x8b, 0xec, 0xdb, 0xec, 0x93, 0x0d,
-	0xd9, 0xa9, 0x13, 0xd2, 0x6e, 0xec, 0xb4, 0x93, 0x1f, 0xeb, 0x79, 0xf4, 0xbc, 0x3f, 0x84, 0x04,
-	0xa0, 0x73, 0x8b, 0x57, 0xad, 0x69, 0x6c, 0x23, 0x7d, 0xa7, 0x93, 0x4f, 0x30, 0x51, 0x48, 0xed,
-	0x75, 0xd5, 0x92, 0x9c, 0x81, 0x5f, 0x34, 0x25, 0x46, 0x2c, 0x66, 0xf3, 0xb3, 0xf4, 0xe5, 0x55,
-	0x17, 0xfe, 0x62, 0x4c, 0x63, 0x3e, 0x37, 0x25, 0xaa, 0xce, 0x94, 0x02, 0x78, 0x4d, 0x3a, 0xf2,
-	0x62, 0x36, 0x9f, 0x2a, 0x27, 0x93, 0x1f, 0x70, 0xae, 0x50, 0x57, 0x64, 0xd1, 0xac, 0xd1, 0xdc,
-	0xa3, 0x51, 0xf8, 0x5d, 0x7e, 0x80, 0x90, 0xba, 0x9f, 0x8d, 0x7d, 0x68, 0x1f, 0x2b, 0x45, 0x5f,
-	0xd9, 0xa7, 0xae, 0x1f, 0x5a, 0x54, 0x40, 0x83, 0x96, 0x97, 0x30, 0xa9, 0x49, 0xf7, 0x79, 0x57,
-	0x7f, 0xaa, 0xc6, 0x35, 0xe9, 0xce, 0x7a, 0x0d, 0xd3, 0x5d, 0x5b, 0x55, 0x46, 0xbc, 0xf3, 0x26,
-	0xfd, 0xc2, 0xb2, 0x4c, 0x7e, 0x31, 0x90, 0xc7, 0x00, 0xd4, 0xfe, 0x47, 0x02, 0xf9, 0x6e, 0x3f,
-	0xaa, 0xaa, 0x31, 0xf2, 0x63, 0x36, 0xe7, 0x43, 0x71, 0x55, 0xa3, 0x8c, 0x81, 0x1b, 0xb4, 0x51,
-	0x10, 0xb3, 0x79, 0x98, 0x9e, 0xf5, 0x0c, 0x8f, 0xc7, 0xae, 0x9c, 0x95, 0x18, 0x08, 0xd6, 0xd9,
-	0x8a, 0xb4, 0x9c, 0x01, 0xd7, 0xb5, 0xdd, 0xe1, 0x9e, 0xf7, 0xd1, 0x2c, 0xb7, 0xb8, 0xea, 0x41,
-	0x94, 0x73, 0xff, 0x06, 0x7a, 0x01, 0x23, 0x67, 0x0d, 0x94, 0x41, 0x4d, 0x7a, 0x59, 0x4a, 0x09,
-	0x7e, 0x99, 0xdb, 0xbc, 0x63, 0x7b, 0xa1, 0x3a, 0x9d, 0xfc, 0x64, 0x10, 0x64, 0xeb, 0x7f, 0x1e,
-	0x9a, 0xc0, 0xe9, 0xad, 0x69, 0xea, 0xcd, 0xd1, 0xe4, 0xd0, 0x2d, 0xee, 0x82, 0xf2, 0x2d, 0x84,
-	0xb6, 0xd9, 0x27, 0x7a, 0x84, 0xa9, 0x6d, 0x56, 0x4f, 0xe8, 0xfc, 0xe7, 0xe8, 0x82, 0x03, 0xba,
-	0x8f, 0x00, 0xeb, 0x34, 0xbb, 0x21, 0x34, 0x8e, 0xf0, 0x12, 0x26, 0x45, 0x73, 0x77, 0xb7, 0xa9,
-	0x4a, 0x8a, 0x58, 0xcc, 0xe7, 0xbe, 0x1a, 0xbb, 0xff, 0x65, 0x49, 0xc3, 0x66, 0xef, 0x60, 0xf3,
-	0x0a, 0x82, 0xec, 0x66, 0xb7, 0x6f, 0xa0, 0x61, 0x7f, 0x3a, 0x29, 0xef, 0x39, 0x16, 0xbe, 0xaf,
-	0x5b, 0xbc, 0x81, 0xf0, 0xe0, 0x38, 0xe4, 0x08, 0x3c, 0x4d, 0x82, 0xb9, 0xef, 0x96, 0x84, 0xb7,
-	0xf8, 0x0a, 0xdc, 0xcd, 0xba, 0x80, 0x73, 0x73, 0xfc, 0x10, 0x04, 0x93, 0xaf, 0x40, 0x9a, 0x27,
-	0xd7, 0x53, 0x78, 0x72, 0x0c, 0x5c, 0xa7, 0x24, 0xb8, 0x13, 0x94, 0x6a, 0xe1, 0xf7, 0x62, 0x2b,
-	0x02, 0x27, 0xb6, 0x29, 0x89, 0xd1, 0xe2, 0x3d, 0x4c, 0x87, 0x07, 0x28, 0x43, 0x18, 0xd3, 0xb6,
-	0x28, 0x90, 0x48, 0x9c, 0x48, 0x80, 0xd1, 0x6d, 0x5e, 0x7d, 0xc3, 0x52, 0xb0, 0xc5, 0x0c, 0x60,
-	0x7f, 0xa3, 0xbb, 0x18, 0x9a, 0xfb, 0xaa, 0x40, 0x71, 0x22, 0x27, 0xe0, 0xeb, 0xbc, 0x46, 0xc1,
-	0x7e, 0x07, 0x00, 0x00, 0xff, 0xff, 0xec, 0xd9, 0xcc, 0x31, 0xfc, 0x03, 0x00, 0x00,
+	// 500 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xbc, 0x52, 0xcd, 0x6e, 0xd3, 0x40,
+	0x10, 0xee, 0x7a, 0x9d, 0x38, 0x99, 0x94, 0xb2, 0x59, 0x11, 0x48, 0x85, 0x10, 0x91, 0xc3, 0x21,
+	0xca, 0xa1, 0x82, 0x5c, 0x39, 0xa1, 0x0a, 0x55, 0x91, 0x40, 0x54, 0xdb, 0x72, 0x2e, 0x96, 0x3d,
+	0xac, 0x56, 0xc2, 0x5e, 0xb3, 0xe3, 0x54, 0xea, 0x85, 0x37, 0xe0, 0xa5, 0x78, 0x32, 0xb4, 0xeb,
+	0x90, 0xb8, 0x29, 0x5c, 0x39, 0xed, 0xcc, 0x7e, 0xf3, 0xf3, 0xcd, 0xcc, 0x07, 0xa0, 0xb3, 0x06,
+	0xcf, 0x6a, 0x67, 0x1b, 0x2b, 0x63, 0x6f, 0xa7, 0x3f, 0x19, 0x24, 0x17, 0x59, 0x83, 0x1f, 0x49,
+	0xcb, 0x39, 0x70, 0x5d, 0x36, 0x53, 0x36, 0x63, 0x8b, 0x93, 0xd5, 0xf8, 0x2c, 0xc4, 0x6e, 0xb1,
+	0xeb, 0xbb, 0x1a, 0x95, 0x47, 0xe5, 0x33, 0x48, 0x72, 0x5b, 0x55, 0x37, 0xa6, 0x98, 0x46, 0x33,
+	0xb6, 0x88, 0x55, 0xdf, 0xbb, 0xeb, 0x42, 0x9e, 0xc2, 0xa0, 0x24, 0x7d, 0xd3, 0xdc, 0xd5, 0x38,
+	0xe5, 0x33, 0xb6, 0x78, 0xa4, 0x92, 0xb2, 0x4d, 0x94, 0x13, 0xe8, 0x7b, 0xc8, 0x14, 0xd3, 0x38,
+	0x00, 0xbd, 0x92, 0xf4, 0xba, 0x90, 0x12, 0xe2, 0x22, 0x6b, 0xb2, 0x69, 0x6f, 0xc6, 0x16, 0xc7,
+	0x2a, 0xd8, 0xe9, 0x3b, 0x18, 0x28, 0xa4, 0xfa, 0xda, 0xd4, 0x24, 0xe7, 0x10, 0xe7, 0xb6, 0xc0,
+	0x2d, 0xa1, 0xc7, 0x2d, 0xa1, 0xf7, 0xce, 0x59, 0x77, 0x6e, 0x0b, 0x54, 0x01, 0x94, 0x02, 0x78,
+	0x49, 0x3a, 0x70, 0x19, 0x2a, 0x6f, 0xa6, 0x3f, 0x60, 0xac, 0x50, 0x1b, 0x6a, 0xd0, 0x5d, 0xa1,
+	0xbb, 0x45, 0xa7, 0xf0, 0xbb, 0x7c, 0x03, 0x23, 0x0a, 0x4e, 0x4b, 0xb0, 0x2d, 0x29, 0xda, 0x92,
+	0x6d, 0x54, 0x18, 0x11, 0x68, 0x67, 0xdf, 0x1b, 0x28, 0xba, 0x3f, 0xd0, 0x73, 0x18, 0x6e, 0xab,
+	0x99, 0x62, 0x3b, 0xec, 0xa0, 0xfd, 0x58, 0x17, 0xe9, 0x2f, 0x06, 0xf2, 0x90, 0x00, 0xd5, 0xff,
+	0x91, 0x81, 0x7c, 0xb9, 0x6f, 0x65, 0x4a, 0x0c, 0x4b, 0xe7, 0xbb, 0xc2, 0xa6, 0x44, 0x39, 0x03,
+	0xee, 0xb0, 0x09, 0x8b, 0x1f, 0xad, 0x4e, 0x5a, 0x0e, 0x7f, 0xd6, 0xae, 0x3c, 0x94, 0x3e, 0x81,
+	0xf8, 0xd2, 0x54, 0x5a, 0x1e, 0x03, 0xa3, 0xc0, 0x95, 0x2b, 0x46, 0x69, 0x0a, 0xf1, 0xa5, 0x3d,
+	0xfc, 0xf5, 0x5e, 0xcb, 0x8f, 0x2b, 0x86, 0xe9, 0x5b, 0x80, 0xab, 0xd5, 0xc5, 0x67, 0x42, 0xe7,
+	0x35, 0x75, 0x0a, 0x83, 0xad, 0x5c, 0x7c, 0x02, 0x5f, 0xc4, 0x2a, 0x69, 0xf5, 0x42, 0xbb, 0xf3,
+	0x47, 0x9d, 0xf3, 0xbf, 0x86, 0x89, 0xcf, 0xfc, 0x60, 0xa9, 0x39, 0xb7, 0x55, 0x85, 0x79, 0x63,
+	0x6c, 0xe5, 0xeb, 0x74, 0x64, 0xc7, 0xba, 0xb2, 0x4b, 0x3f, 0x41, 0xd2, 0xe9, 0xb5, 0x5b, 0x17,
+	0xfb, 0x97, 0x02, 0xa3, 0xbf, 0x29, 0x90, 0xef, 0x29, 0x2c, 0x5f, 0xc0, 0xa8, 0x23, 0x7a, 0xd9,
+	0x87, 0x48, 0x93, 0x60, 0xfe, 0xdd, 0x90, 0x88, 0x96, 0x5f, 0x80, 0xfb, 0x5e, 0x13, 0x18, 0xbb,
+	0x43, 0x91, 0x09, 0x26, 0x9f, 0x82, 0x74, 0x0f, 0x4e, 0x2f, 0x22, 0x39, 0x80, 0xb8, 0x36, 0x95,
+	0x16, 0x3c, 0x58, 0xb6, 0xd2, 0x22, 0xf6, 0xb1, 0x9b, 0x07, 0xb3, 0x8a, 0xde, 0xf2, 0x15, 0x0c,
+	0x77, 0x22, 0x97, 0x23, 0x48, 0x68, 0x93, 0xe7, 0x48, 0x24, 0x8e, 0x24, 0x40, 0xff, 0x6b, 0x66,
+	0xbe, 0x61, 0x21, 0xd8, 0x72, 0x0e, 0xb0, 0x57, 0x4d, 0x08, 0x43, 0x77, 0x6b, 0x72, 0x14, 0x47,
+	0xbe, 0x85, 0xce, 0x4a, 0x14, 0xec, 0x77, 0x00, 0x00, 0x00, 0xff, 0xff, 0x77, 0x13, 0x65, 0x8e,
+	0xf0, 0x03, 0x00, 0x00,
 }
