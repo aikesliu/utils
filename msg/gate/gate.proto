@@ -60,7 +60,6 @@ message Ping {
 }
 message Pong {
     optional int64 s = 1;
-    optional int64 e = 2;
 }
 
 message S2GUserMsg {
