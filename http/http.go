@@ -2,71 +2,56 @@ package http
 
 import (
 	"bytes"
-	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
-	"utils/logger"
+
+	"github.com/aikesliu/utils/marshal"
 )
 
+// read request body to struct as json
 func Req2Json(r *http.Request, req interface{}) error {
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		return fmt.Errorf("read body failed, err: %v", err)
+		return err
 	}
-
-	jsonStr := string(body)
-	if err := json.Unmarshal([]byte(jsonStr), req); err != nil {
-		return fmt.Errorf("body: %v is not json, err: %v", string(body), err)
-	}
-	return nil
+	return marshal.JsonStr2Struct(body, req)
 }
 
-func ResponseJson(w http.ResponseWriter, data interface{}, err error) {
+// json resp
+func JResp(w http.ResponseWriter, v interface{}, err error) {
 	resp := make(map[string]interface{})
 	resp["ret"] = 0
 	if err != nil {
 		resp["ret"] = 1
 		resp["msg"] = err.Error()
 	}
-	resp["data"] = data
-	bytesData, err := json.Marshal(resp)
-	if err != nil {
-		logger.E("ResponseJson json.Marshal error: %v", err)
-	} else {
-		w.WriteHeader(http.StatusOK)
-		w.Write(bytesData)
-	}
+	resp["data"] = v
+	str, _ := marshal.Struct2JsonStr(resp)
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(str))
+	w.Write([]byte("\n"))
 }
 
-func JsonPost(url string, jsonReq interface{}) (int, map[string]interface{}) {
-	var dat map[string]interface{}
+// json post
+func JPost(url string, req interface{}) (error, map[string]interface{}) {
 	client := &http.Client{}
-	data, err := json.Marshal(jsonReq)
+	reqStr, _ := marshal.Struct2JsonStr(req)
+	httpReq, err := http.NewRequest("POST", url, bytes.NewBuffer([]byte(reqStr)))
 	if err != nil {
-		logger.E("JsonPost, json req marshal failed, err: %v", err)
-		return http.StatusExpectationFailed, dat
+		return err, nil
 	}
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(data))
-	if err != nil {
-		logger.E("JsonPost, new request failed, err: %v", err)
-		return http.StatusExpectationFailed, dat
-	}
-	req.Header.Add("Content-Type", "application/json")
-	resp, err := client.Do(req)
-	if err != nil {
-		logger.E("JsonPost, new request do failed, err: %v", err)
-		return http.StatusExpectationFailed, dat
+	httpReq.Header.Add("Content-Type", "application/json")
+	resp, errDo := client.Do(httpReq)
+	if errDo != nil {
+		return err, nil
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		logger.E("JsonPost, new request failed, err: %v", err)
-		return http.StatusExpectationFailed, dat
+	body, errRead := ioutil.ReadAll(resp.Body)
+	if errRead != nil {
+		return errRead, nil
 	}
-	if err := json.Unmarshal(body, &dat); err != nil {
-		logger.E("JsonPost, body: %v to json failed, err: %v", string(body), err)
-	}
-	return resp.StatusCode, dat
+	data := make(map[string]interface{})
+	errJson := marshal.JsonStr2Struct(body, &data)
+	return errJson, data
 }

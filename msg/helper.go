@@ -1,8 +1,8 @@
 package msg
 
 import (
+	"github.com/aikesliu/utils/log"
 	"github.com/golang/protobuf/proto"
-	"utils/logger"
 )
 
 func GetData(msg proto.Message) []byte {
@@ -11,7 +11,7 @@ func GetData(msg proto.Message) []byte {
 	}
 	data, err := proto.Marshal(msg)
 	if err != nil {
-		logger.E("marshal msg failed, err: %v", err)
+		log.E("marshal failed: %v", err)
 		return nil
 	}
 	return data
