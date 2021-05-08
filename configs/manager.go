@@ -11,9 +11,6 @@ import (
 )
 
 type Manager struct {
-	configs map[string]interface{}
-	// 记录注册顺序，保证配置可以按照顺序加载
-	names           []string
 	FileMgr         *filecheck.FileManager
 	loadConfigIndex int
 }
@@ -25,7 +22,6 @@ func New() *Manager {
 }
 
 func (m *Manager) init() {
-	m.configs = make(map[string]interface{})
 	m.FileMgr = filecheck.NewFileManager()
 }
 
@@ -36,16 +32,6 @@ func (m *Manager) Reset() {
 // 注册启动配置文件
 func (m *Manager) RegisterStartFile(file string, cb func(f string)) {
 	m.FileMgr.RegisterCheckFile(file, cb)
-}
-
-// 注册启动配置文件中配置名称对应的结构体指针
-func (m *Manager) Register(name string, v interface{}) {
-	if _, ok := m.configs[name]; ok {
-		log.E("Register failed: name: %v config has registered", name)
-		return
-	}
-	m.configs[name] = v
-	m.names = append(m.names, name)
 }
 
 func (m *Manager) LoadConfig(file string, v interface{}) bool {

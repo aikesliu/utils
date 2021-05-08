@@ -1,6 +1,6 @@
 package marshal
 
-import "interface/json"
+import "encoding/json"
 
 func Struct2JsonStr(v interface{}) (string, error) {
 	data, err := json.Marshal(v)
