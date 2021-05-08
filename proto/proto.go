@@ -1,4 +1,4 @@
-package msg
+package proto
 
 import (
 	"github.com/aikesliu/utils/log"
