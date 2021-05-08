@@ -21,7 +21,10 @@ func init() {
 
 func New() *Logger {
 	logger := &Logger{
-		LoggerObj: &LoggerObj{},
+		LoggerObj: &LoggerObj{
+			// 默认 flag 11
+			flags: 11,
+		},
 	}
 	logger.SetCallDepth(3)
 	return logger

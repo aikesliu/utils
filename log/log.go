@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"runtime"
+	"runtime/debug"
 	"strconv"
 	"sync"
 	"time"
@@ -68,7 +69,7 @@ type LoggerObj struct {
 	// 日志后缀索引
 	suffix  int
 	date    *time.Time
-	mu      *sync.RWMutex
+	mu      sync.RWMutex
 	logfile *os.File
 	lg      *log.Logger
 
@@ -116,7 +117,6 @@ func (m *LoggerObj) SetRollingFile(fileDir, fileName string, maxNumber int, maxS
 	m.maxFileSize = maxSize * int64(unit)
 	m.isRollingFile = true
 	m.isDailyRolling = false
-	m.mu = new(sync.RWMutex)
 
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -144,7 +144,6 @@ func (m *LoggerObj) SetRollingDaily(fileDir, fileName string) {
 	t, _ := time.Parse(DateFormat, time.Now().Format(DateFormat))
 	m.dir = fileDir
 	m.filename = fileName
-	m.mu = new(sync.RWMutex)
 	m.date = &t
 
 	m.mu.Lock()
@@ -172,7 +171,7 @@ func (m *LoggerObj) fileMonitor() {
 func (m *LoggerObj) fileCheck() {
 	defer func() {
 		if err := recover(); err != nil {
-			log.Println(err)
+			log.Printf("file check error: %v\n", err)
 		}
 	}()
 	if m.isMustRename() {
@@ -216,7 +215,9 @@ func (m *LoggerObj) debug(lvl LEVEL, fmtStr string, a ...interface{}) {
 	if m.level <= lvl {
 		fmtStr = debugStr[lvl] + fmtStr
 		logStr := fmt.Sprintf(fmtStr, a...)
-		m.lg.Output(m.callDepth, logStr)
+		if m.lg != nil {
+			m.lg.Output(m.callDepth, logStr)
+		}
 		m.console(logStr)
 		if lvl == FATAL {
 			os.Exit(1)
@@ -249,7 +250,7 @@ func (m *LoggerObj) rename() {
 			}
 			err := os.Rename(m.dir+"/"+m.filename, fn)
 			if err != nil {
-				m.lg.Println("rename err", err.Error())
+				m.lg.Printf("rename failed: %v\n", err.Error())
 			}
 			t, _ := time.Parse(DateFormat, time.Now().Format(DateFormat))
 			m.date = &t
@@ -282,10 +283,10 @@ func (m *LoggerObj) coverNextOne() {
 func fileSize(file string) int64 {
 	f, e := os.Stat(file)
 	if e != nil {
-		fmt.Println(e.Error())
+		fmt.Printf("file size failed: %v\n", e.Error())
 		return 0
 	}
-	fmt.Println("fileSize", file, f.Size())
+	fmt.Printf("file: %v, size: %v\n", file, f.Size())
 	return f.Size()
 }
 
@@ -300,7 +301,7 @@ func mkDir(dir string) (e error) {
 	if !b {
 		if err := os.MkdirAll(dir, 0666); err != nil {
 			if os.IsPermission(err) {
-				fmt.Println("create dir failed:", err.Error())
+				fmt.Printf("create dir failed: %v\n", err.Error())
 				e = err
 			}
 		}
@@ -310,6 +311,7 @@ func mkDir(dir string) (e error) {
 
 func catchError() {
 	if err := recover(); err != nil {
-		log.Println("err", err)
+		log.Printf("panic: %v\n", err)
+		debug.PrintStack()
 	}
 }
