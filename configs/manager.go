@@ -2,6 +2,7 @@ package configs
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"strings"
 
@@ -34,33 +35,58 @@ func (m *Manager) RegisterStartFile(file string, cb func(f string)) {
 	m.FileMgr.RegisterCheckFile(file, cb)
 }
 
-func (m *Manager) LoadConfig(file string, v interface{}) bool {
-	if file == "" {
-		return false
+func (m *Manager) LoadFromData(data []byte, name string, v interface{}) error {
+	if name == "" {
+		return fmt.Errorf("file is nil")
 	}
-	idx := strings.LastIndex(file, ".")
-	ex := file[idx+1:]
+	idx := strings.LastIndex(name, ".")
+	ex := name[idx+1:]
 	// log.Debug("LoadConfig file: %v ex: %v", file, ex)
-	log.I("load config %d: %v", m.loadConfigIndex, file)
+	log.I("load config [%d]: %v", m.loadConfigIndex, name)
 	var err error
 	if ex == "json" {
-		err = FileJSON(file, v)
+		err = json.Unmarshal(data, v)
 	} else if ex == "yml" || ex == "yaml" {
-		err = FileYML(file, v)
+		err = yaml.Unmarshal(data, v)
 	} else {
-		log.E("LoadConfig failed: file: %v unknown file type: %v", file, ex)
-		return false
+		return fmt.Errorf("file: %v unknown file type: %v", name, ex)
 	}
 	if err != nil {
-		log.E("LoadConfig failed: %v", err)
-		return false
+		return err
 	}
 	m.loadConfigIndex++
 
 	if iConfig, ok := v.(IConfigLoad); ok {
 		iConfig.OnLoad()
 	}
-	return true
+	return nil
+}
+
+func (m *Manager) LoadConfig(file string, v interface{}) error {
+	if file == "" {
+		return fmt.Errorf("file is nil")
+	}
+	idx := strings.LastIndex(file, ".")
+	ex := file[idx+1:]
+	// log.Debug("LoadConfig file: %v ex: %v", file, ex)
+	log.I("load config [%d]: %v", m.loadConfigIndex, file)
+	var err error
+	if ex == "json" {
+		err = FileJSON(file, v)
+	} else if ex == "yml" || ex == "yaml" {
+		err = FileYML(file, v)
+	} else {
+		return fmt.Errorf("file: %v unknown file type: %v", file, ex)
+	}
+	if err != nil {
+		return err
+	}
+	m.loadConfigIndex++
+
+	if iConfig, ok := v.(IConfigLoad); ok {
+		iConfig.OnLoad()
+	}
+	return nil
 }
 
 // FileYML parse yml data from file
