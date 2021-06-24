@@ -65,6 +65,8 @@ type Agent struct {
 
 	chSendDataCache chan []byte
 	chSendStop      chan bool
+
+	once sync.Once
 }
 
 func (m *Agent) Start() {
@@ -81,6 +83,7 @@ func (m *Agent) Start() {
 	m.h.OnReady()
 	m.wg.Wait()
 	m.Close()
+	log.I("%v agent run over", m.Config.Key)
 }
 
 func (m *Agent) GetId() uint64 {
@@ -166,16 +169,18 @@ func (m *Agent) read() ([]byte, error) {
 }
 
 func (m *Agent) Close() {
-	log.I("%v conn close", m.Config.Key)
-	m.l.Lock()
-	defer m.l.Unlock()
-	if m.chSendDataCache != nil {
+	m.once.Do(func() {
+		log.I("%v conn close", m.Config.Key)
+		m.l.Lock()
+		defer m.l.Unlock()
+		err := m.conn.Close()
+		if err != nil {
+			log.E("%v conn close failed: %v", m.Config.Key)
+		}
 		close(m.chSendDataCache)
 		m.chSendDataCache = nil
-	}
-	if m.chSendStop != nil {
-		close(m.chSendStop)
-		m.chSendStop = nil
-	}
-	m.h.OnClose()
+		// close(m.chSendStop)
+		// m.chSendStop = nil
+		m.h.OnClose()
+	})
 }
