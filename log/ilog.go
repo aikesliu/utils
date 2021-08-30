@@ -77,6 +77,10 @@ func (m *Logger) Fatal(format string, a ...interface{}) {
 func (m *Logger) Close() {
 }
 
+func Export(il *Logger) {
+	l = il
+}
+
 func SetFlags(flag int) {
 	l.SetFlags(flag)
 }
